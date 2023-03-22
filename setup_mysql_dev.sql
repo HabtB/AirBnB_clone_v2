@@ -1,6 +1,3 @@
-# Log into MySQL as the root user
-mysql -u root -p
-
 # Create the database hbnb_dev_db (if it doesn't already exist)
 CREATE DATABASE IF NOT EXISTS hbnb_dev_db;
 
