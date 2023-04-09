@@ -1,46 +1,49 @@
 #!/usr/bin/python3
-"""Fabric script that distributes an archive to your web servers"""
-
 from fabric.api import *
 from os.path import exists
 from datetime import datetime
+from fabric.api import local
 
-env.hosts = ['100.26.178.47 web-01', '100.26.214.157 web-02']
-env.user = 'ubuntu'
-env.key_filename = '~/.ssh/school'
+env.hosts = ['35.237.103.2', '35.227.27.195']
+
+
+def do_pack():
+    '''
+    Fabric script that generates a .tgz archive from the
+    contents of the web_static
+    '''
+    try:
+        filepath = 'versions/web_static_' + datetime.now().\
+                   strftime('%Y%m%d%H%M%S') + '.tgz'
+        local('mkdir -p versions')
+        local('tar -zcvf versions/web_static_$(date +%Y%m%d%H%M%S).tgz\
+        web_static')
+        print('web_static packed: {} -> {}'.
+              format(filepath, os.path.getsize(filepath)))
+    except:
+        return None
+
 
 def do_deploy(archive_path):
-    """Deploys the web static to the web servers"""
-    if not exists(archive_path):
-        return False
-
-    # Create directories
-    try:
-        put(archive_path, "/tmp/")
-        archive_file = archive_path.split("/")[-1]
-        archive_dir = "/data/web_static/releases/" + \
-                      archive_file.split(".")[0]
-        run("sudo mkdir -p {}".format(archive_dir))
-
-        # Uncompress archive
-        run("sudo tar -xzf /tmp/{} -C {}".format(archive_file,
-                                                 archive_dir))
-
-        # Delete archive
-        run("sudo rm /tmp/{}".format(archive_file))
-
-        # Move files out of archive dir
-        run("sudo mv {}/web_static/* {}/".format(archive_dir, archive_dir))
-
-        # Remove empty archive dir
-        run("sudo rm -rf {}/web_static".format(archive_dir))
-
-        # Delete current symlink
-        run("sudo rm -rf /data/web_static/current")
-
-        # Create new symlink
-        run("sudo ln -s {} /data/web_static/current".format(archive_dir))
-        return True
-    except:
-        return False
-
+        """
+        Depploy to yoru webs server
+    """
+        if exists(archive_path) is False:
+            return False
+        file_name = archive_path.split('/')[1]
+        file_path = '/data/web_static/releases'
+        try:
+            put(archive_path, '/tmp/')
+            run('mkdir -p {}{}'.format(file_path, file_name[:-4]))
+            run('tar -xzf /tmp/{} -C {}{}/'.format(file_name,
+                                                   file_path, file_name[:-4]))
+            run('rm /tmp/{}'.format(file_name))
+            run('mv {}{}/web_static/* {}{}/'.format(file_path, file_name[:-4],
+                                                    file_path, file_name[:-4]))
+            run('rm -rf {}{}/web_static'.format(file_path, file_name[:-4]))
+            run('rm -rf /data/web_static/current')
+            run('ln -s {}{}/ /data/web_static/current'.format(file_path,
+                                                              file_name[:-4]))
+            return True
+        except:
+            return False
