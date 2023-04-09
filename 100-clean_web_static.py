@@ -1,108 +1,68 @@
-#!/usr/bin/env python3
-
-import os
-from fabric.api import env, local, put, run
-from fabric.context_managers import cd
-from fabric.contrib.files import exists
+#!/usr/bin/python3
+from fabric.api import *
+from os.path import exists
 from datetime import datetime
-
+from fabric.api import local
 
 env.hosts = ['100.26.178.47', '100.26.214.157']
-env.user = 'ubuntu'
 
 
 def do_pack():
-    """
-    Compress the contents of the web_static directory into a tgz archive.
-
-    Returns:
-        The path to the compressed archive on the local machine.
-    """
-    local('mkdir -p versions')
-    timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
-    archive_path = 'versions/web_static_{}.tgz'.format(timestamp)
-    local('tar -czf {} web_static'.format(archive_path))
-    size = os.path.getsize(archive_path)
-    print('web_static packed: {} -> {}Bytes'.format(archive_path,:
-        return False
-
-    if run('rm {}'.format(remote_path)).failed:
-        return False
-
-    with cd(dirname):
-        run('mv web_static/* .')
-        run('rm -rf web_static')
-
-    with cd('/data/web_static'):
-        if exists('current'):
-           size))
-    return archive_path
+    '''
+    Fabric script that generates a .tgz archive from the
+    contents of the web_static
+    '''
+    try:
+        filepath = 'versions/web_static_' + datetime.now().\
+                   strftime('%Y%m%d%H%M%S') + '.tgz'
+        local('mkdir -p versions')
+        local('tar -zcvf versions/web_static_$(date +%Y%m%d%H%M%S).tgz\
+        web_static')
+        print('web_static packed: {} -> {}'.
+              format(filepath, os.path.getsize(filepath)))
+    except:
+        return None
 
 
 def do_deploy(archive_path):
     """
-    Deploy the contents of the compressed archive to the web server.
-
-    Args:
-        archive_path: The path to the compressed archive on the local machine.
-
-    Returns:
-        True if the deployment was successful, False otherwise.
+    Deploy to yoru webs server
     """
-    if not os.path.isfile(archive_path):
+    if exists(archive_path) is False:
         return False
-
-    filename = os.path.basename(archive_path)
-    remote_path = '/tmp/{}'.format(filename)
-    if put(archive_path, remote_path).failed:
+    file_name = archive_path.split('/')[1]
+    file_path = '/data/web_static/releases'
+    try:
+        put(archive_path, '/tmp/')
+        run('mkdir -p {}{}'.format(file_path, file_name[:-4]))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(file_name,
+                                               file_path, file_name[:-4]))
+        run('rm /tmp/{}'.format(file_name))
+        run('mv {}{}/web_static/* {}{}/'.format(file_path, file_name[:-4],
+                                                file_path, file_name[:-4]))
+        run('rm -rf {}{}/web_static'.format(file_path, file_name[:-4]))
+        run('rm -rf /data/web_static/current')
+        run('ln -s {}{}/ /data/web_static/current'.format(file_path,
+                                                          file_name[:-4]))
+        return True
+    except:
         return False
-
-    dirname = '/data/web_static/releases/{}'.format(
-        filename.replace('.tgz', ''))
-    if run('mkdir -p {}'.format(dirname)).failed:
-        return False
-
-    if run('tar -xzf {} -C {}'.format(remote_path, dirname)).failed  run('rm current')
-        run('ln -s {} current'.format(dirname))
-
-    return True
-
-
-def deploy():
-    """
-    Full deployment of the web application.
-    """
-    archive_path = do_pack()
-    if archive_path is None:
-        return False
-    return do_deploy(archive_path)
 
 
 def do_clean(number=0):
-    """
-    Remove old archives from the local and remote machines.
-
-    Args:
-        number: The number of archives to keep (0 means keep all).
-    """
-    number = int(number)
-    if number < 1:
-        number = 1
-
-    with lcd('versions'):
-        archives = local('ls -t web_static*.tgz', capture=True)
-        if len(archives) == 0:
-            return
-        archives = archives.split('\n')[:-number]
-        for archive in archives:
-            local('rm -f {}'.format(archive))
-
-    with cd('/data/web_static/releases'):
-        releases = run('ls -t').split()
-        if len(releases) == 0:
-            return
-        releases = releases[:-number]
-        for release in releases:
-            if release != 'test':
-                run('rm -rf {}'.format(release))
-
+    '''
+    Clean extra arhive files servers
+    '''
+    files = local('ls -tr versions', capture=True)
+    number_of_files = int(number)
+    if number_of_files == 0:
+        number_of_files = 1
+    files = files.split('\n')
+    file_length = len(files)
+    for num in range(0, file_length - number_of_files):
+        local('rm -rf versions/{}'.format(files[num]))
+    files = run('ls -tr /data/web_static/releases')
+    files = files.split('\n')
+    file_length = len(files)
+    for num in range(0, file_length - number_of_files):
+        run('rm -rf /data/web_static/releases/{}'.format(files[num]))
