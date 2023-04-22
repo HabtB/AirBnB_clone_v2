@@ -5,11 +5,19 @@ app = Flask(__name__)
 
 
 @app.route('/', strict_slashes=False)
-@app.route('/hbnb', strict_slashes=False)
 def hello():
     """ displays 'Hello HBNB!' up on running
-    with the '/' and '/hbnb' route """
+    with the '/' route
+    """
     return "Hello HBNB!"
+
+
+@app.route('/hbnb', strict_slashes=False)
+def hbnb():
+    """ displays 'HBNB' up on running
+    with the '/hbnb' route
+    """
+    return "HBNB"
 
 
 if __name__ == "__main__":
