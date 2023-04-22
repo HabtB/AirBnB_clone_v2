@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """ A script that starts a Flask Application"""
 from flask import Flask, render_template
-import re
 app = Flask(__name__)
 
 
@@ -20,8 +19,7 @@ def hbnb():
 @app.route("/c/<text>", strict_slashes=False)
 def show_text(text):
     """ returns for the '/c/<text>' route"""
-    new_text = re.sub('_', " ", text)
-    return f"C {new_text}"
+    return "C {}".format(text.replace('_', " "))
 
 
 if __name__ == "__main__":
