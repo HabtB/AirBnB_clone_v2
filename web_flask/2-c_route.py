@@ -17,7 +17,7 @@ def hbnb():
 
 @app.route("/c/<text>", strict_slashes=False)
 def show_text(text):
-    new_text = re.sub('/', " ", text)
+    new_text = re.sub('_', " ", text)
     return f"C {new_text}"
 
 
