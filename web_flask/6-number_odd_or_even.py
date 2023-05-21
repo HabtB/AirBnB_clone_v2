@@ -48,7 +48,7 @@ def even_odd(n=None):
     """ returns for the '/number_odd_or_even/<int:n>' route"""
     if (type(n) == int):
         parity = "even" if (n % 2 == 0) else "odd"
-        return render_template('6-number_odd_or_even.html', n=n, parity=EorO)
+        return render_template('6-number_odd_or_even.html', n=n, EorO=parity)
 
 
 if __name__ == "__main__":
