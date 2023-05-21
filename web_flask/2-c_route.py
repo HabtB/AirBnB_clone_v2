@@ -18,7 +18,9 @@ def hbnb():
 
 @app.route("/c/<text>", strict_slashes=False)
 def show_text(text):
-    """ returns for the '/c/<text>' route"""
+    """ returns for the '/c/<text>' route where text
+        is a variable that contains any string value
+    """
     return "C {}".format(text.replace('_', " "))
 
 
