@@ -31,14 +31,14 @@ def show_python(text="is cool"):
 
 @app.route('/number/<int:n>', strict_slashes=False)
 def show_number(n):
-    " returns for the '/hbnb' route/"
+    " returns for the '/number/<n>' route"
     if isinstance(n, int):
         return "{} is a number".format(n)
 
 
 @app.route('/number_template/<int:n>', strict_slashes=False)
 def number_template(n):
-    " returns for the '/hbnb' route/"
+    " returns for '/number_template/<n>' route"
     if isinstance(n, int):
         return render_template('5-number.html', n=n)
 
