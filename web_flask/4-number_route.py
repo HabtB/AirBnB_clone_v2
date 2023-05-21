@@ -31,7 +31,7 @@ def show_python(text="is cool"):
 
 @app.route('/number/<int:n>', strict_slashes=False)
 def show_number(n):
-    " returns for the '/hbnb' route/"
+    " returns for the '/number/int' route/"
     if isinstance(n, int):
         return "{} is a number".format(n)
 
