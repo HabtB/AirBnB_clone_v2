@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/', strict_slashes=False)
 def hello():
-    """ displays 'Hello HBNB!' up on running
+    """ displays 'Hello HBNB!' upon running
     with the '/' route
     """
     return "Hello HBNB!"
@@ -14,7 +14,7 @@ def hello():
 
 @app.route('/hbnb', strict_slashes=False)
 def hbnb():
-    """ displays 'HBNB' up on running
+    """ displays 'HBNB' upon running
     with the '/hbnb' route
     """
     return "HBNB"
