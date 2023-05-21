@@ -25,7 +25,9 @@ def show_text(text):
 @app.route("/python", strict_slashes=False)
 @app.route("/python/<text>", strict_slashes=False)
 def show_python(text="is cool"):
-    """ returns for the '/python/<text>' route"""
+    """ returns for the '/python/<text>' route but no
+        text is given, the default value is displayed
+    """
     return "Python {}".format(text.replace('_', " "))
 
 
